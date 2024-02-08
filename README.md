@@ -31,11 +31,29 @@ podman run -dt \
               quay.io/keycloak/keycloak:23.0.3 \
               start-dev
               
-2. Configuring Keycloak for OAuth2-proxy:
+2. Configuring Keycloak for OAuth2-proxy: < https://oauth2-proxy.github.io/oauth2-proxy/configuration/oauth_provider#keycloak-oidc-auth-provider >
+   Once running, login into keycloak => <IP_ADDRESS:9080> and click on administration console.
+   1. Creating the client:
+      -------------------
+      Create a new OIDC client in your Keycloak realm by navigating to:
+         Clients -> Create client
+         Client Type 'OpenID Connect'
+         Client ID <your client's id>, please complete the remaining fields as appropriate and click Next.
+         Client authentication 'On'
+      Authentication flow
+         Standard flow 'selected'
+         Direct access grants 'deselect'
+      Save the configuration.
+      Settings / Access settings:
+         Valid redirect URIs https://internal.yourcompany.com/oauth2/callback
+         Save the configuration.
+      Under the Credentials tab you will now be able to locate <your client's secret>.
+      
+   2. Configure a dedicated audience mapper for your client by navigating to Clients -> <your client's id> -> Client scopes.
+      --------
+      
    
-   
-   
-3. Spin up an Oauth2-Proxy container:
+4. Spin up an Oauth2-Proxy container:
    
     #!/bin/bash
     podman run -d \
@@ -47,7 +65,7 @@ podman run -dt \
    #podman run -d --name oauth2-proxy -p 4100:4180 -v /home/lenovo/scratch/mytest/oath2proxy/oauth2-proxy.cfg:/etc/oauth2-proxy.cfg quay.io/oauth2-proxy/oauth2-proxy -- 
     config=/etc/oauth2-proxy.cfg --provider=keycloak-oidc --oidc-issuer-url=http://192.168.122.1:9070/realms/filestash
 
-4. OAuth2-proxy configuration-Modifications:
+5. OAuth2-proxy configuration-Modifications:
 ## OAuth2 Proxy Config File
 ## https://github.com/oauth2-proxy/oauth2-proxy
 
