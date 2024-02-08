@@ -1,4 +1,4 @@
-# Keycloak_Integration_Oauth2-Proxy
+# Keycloak_Integration_Oauth2-Proxy  < https://github.com/oauth2-proxy/oauth2-proxy?tab=readme-ov-file#installation >
 
 1. Spin up a Keycloak container with Postgres as DB:
    
@@ -34,6 +34,7 @@ podman run -dt \
 2. Configuring Keycloak for OAuth2-proxy:
    
    
+   
 3. Spin up an Oauth2-Proxy container:
    
     #!/bin/bash
@@ -46,4 +47,118 @@ podman run -dt \
    #podman run -d --name oauth2-proxy -p 4100:4180 -v /home/lenovo/scratch/mytest/oath2proxy/oauth2-proxy.cfg:/etc/oauth2-proxy.cfg quay.io/oauth2-proxy/oauth2-proxy -- 
     config=/etc/oauth2-proxy.cfg --provider=keycloak-oidc --oidc-issuer-url=http://192.168.122.1:9070/realms/filestash
 
-   
+4. OAuth2-proxy configuration-Modifications:
+## OAuth2 Proxy Config File
+## https://github.com/oauth2-proxy/oauth2-proxy
+
+## <addr>:<port> to listen on for HTTP/HTTPS clients
+http_address = ":4180"
+# https_address = ":443"
+
+## Are we running behind a reverse proxy? Will not accept headers like X-Real-Ip unless this is set.
+# reverse_proxy = true
+
+## TLS Settings
+# tls_cert_file = ""
+# tls_key_file = ""
+
+## the OAuth Redirect URL.
+# defaults to the "https://" + requested host header + "/oauth2/callback"
+# redirect_url = "https://internalapp.yourcompany.com/oauth2/callback"
+redirect_url = "http://192.168.122.1:4170/oauth2/callback"
+
+
+## the http url(s) of the upstream endpoint. If multiple, routing is based on path
+upstreams = [
+     "http://192.168.122.1:8334/"
+]
+
+## Logging configuration
+logging_filename = "/tmp/oauth2.log"
+logging_max_size = 100
+logging_max_age = 7
+logging_local_time = true
+logging_compress = false
+standard_logging = true
+standard_logging_format = "[{{.Timestamp}}] [{{.File}}] {{.Message}}"
+request_logging = true
+request_logging_format = "{{.Client}} - {{.Username}} [{{.Timestamp}}] {{.Host}} {{.RequestMethod}} {{.Upstream}} {{.RequestURI}} {{.Protocol}} {{.UserAgent}} {{.StatusCode}} {{.ResponseSize}} {{.RequestDuration}}"
+auth_logging = true
+auth_logging_format = "{{.Client}} - {{.Username}} [{{.Timestamp}}] [{{.Status}}] {{.Message}}"
+
+## pass HTTP Basic Auth, X-Forwarded-User and X-Forwarded-Email information to upstream
+# pass_basic_auth = true
+# pass_user_headers = true
+## pass the request Host Header to upstream
+## when disabled the upstream Host is used as the Host Header
+# pass_host_header = true
+
+## Email Domains to allow authentication for (this authorizes any email on this domain)
+## for more granular authorization use `authenticated_emails_file`
+## To authorize any email addresses use "*"
+email_domains = [
+     "*"
+]
+## The OAuth Client ID, Secret
+# client_id = "123456.apps.googleusercontent.com"
+# client_secret = ""
+client_id= "staging-auth"
+client_secret = "Z1P7LhzoQqkzhJij4Hd85Uce6aCeg84d"
+
+## Pass OAuth Access token to upstream via "X-Forwarded-Access-Token"
+pass_access_token = false
+
+## Authenticated Email Addresses File (one email per line)
+# authenticated_emails_file = ""
+
+## Htpasswd File (optional)
+## Additionally authenticate against a htpasswd file. Entries must be created with "htpasswd -B" for bcrypt encryption
+## enabling exposes a username/login signin form
+# htpasswd_file = ""
+
+## bypass authentication for requests that match the method & path. Format: method=path_regex OR path_regex alone for all methods
+# skip_auth_routes = [
+#   "GET=^/probe",
+#   "^/metrics"
+# ]
+
+## mark paths as API routes to get HTTP Status code 401 instead of redirect to login page
+# api_routes = [
+#   "^/api
+# ]
+
+## Templates
+## optional directory with custom sign_in.html and error.html
+# custom_templates_dir = ""
+
+## skip SSL checking for HTTPS requests
+# ssl_insecure_skip_verify = false
+
+
+## Cookie Settings
+## Name     - the cookie name
+## Secret   - the seed string for secure cookies; should be 16, 24, or 32 bytes
+##            for use with an AES cipher when cookie_refresh or pass_access_token
+##            is set
+## Domain   - (optional) cookie domain to force cookies to (ie: .yourcompany.com)
+## Expire   - (duration) expire timeframe for cookie
+## Refresh  - (duration) refresh the cookie when duration has elapsed after cookie was initially set.
+##            Should be less than cookie_expire; set to 0 to disable.
+##            On refresh, OAuth token is re-validated.
+##            (ie: 1h means tokens are refreshed on request 1hr+ after it was set)
+## Secure   - secure cookies are only sent by the browser of a HTTPS connection (recommended)
+## HttpOnly - httponly cookies are not readable by javascript (recommended)
+cookie_name = "_oauth2_proxy"
+cookie_secret = "wYTBIWPQ_1C-hL-WxVu_i1z8t19ZxiDQY5AADDqtI7Y="
+#cookie_domains = "localhost"
+cookie_expire = "168h"
+cookie_refresh = "0"
+cookie_secure = false
+cookie_httponly = true
+insecure_oidc_allow_unverified_email = "true"
+
+# Changes 
+#cookie_csrf_per_request=true
+#cookie_csrf_expire=5m
+
+5. Restart the OAuth2-proxy container.
