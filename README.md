@@ -163,7 +163,6 @@ pass_access_token = false
 ## Refresh  - (duration) refresh the cookie when duration has elapsed after cookie was initially set.
 ##            Should be less than cookie_expire; set to 0 to disable.
 ##            On refresh, OAuth token is re-validated.
-##            (ie: 1h means tokens are refreshed on request 1hr+ after it was set)
 ## Secure   - secure cookies are only sent by the browser of a HTTPS connection (recommended)
 ## HttpOnly - httponly cookies are not readable by javascript (recommended)
 cookie_name = "_oauth2_proxy"
